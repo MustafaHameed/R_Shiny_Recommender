@@ -1,0 +1,195 @@
+---
+title: "Shiny Data Loader"
+author: "James Topor"
+date: "July 11, 2017"
+output: html_document
+---
+
+Make sure to load the 'readr' and 'dplyr' libraries
+```{r, warning = FALSE, message = FALSE}
+library(knitr)
+library(readr)
+library(dplyr)
+
+set.seed(1)
+```
+
+# Load Artist + Genre Tag Info
+
+Each of these files needs to be loaded into a data frame so that we can 
+pull the required artist names or genre names when needed
+
+```{r, warning = FALSE, message = FALSE}
+# load list of last.fm artists: drop columns containing URL's since they aren't needed
+lfm_art <- read_delim("https://raw.githubusercontent.com/jtopor/CUNY-MSDA-643/master/FP/artists.dat", delim = "\t") %>% select(id, name)
+
+# cleanup foreign characters in artist names: most will be converted to '?'
+lfm_art$name <- iconv(lfm_art$name, from = "UTF-8", to = "ASCII//TRANSLIT")
+
+# ----------------------------
+
+# load last.fm tags.dat file
+lfm_tags <- read_delim("https://raw.githubusercontent.com/jtopor/CUNY-MSDA-643/master/FP/tags.dat", delim = "\t")
+```
+
+
+
+
+# Load + Use UBCF recommendations
+
+Given a user, display a list of 10 recommended artists based on output of UBCF
+
+```{r}
+# load UBCF recs for each user (10 artists recommendations per user)
+user_tenrecs <- read.csv("https://raw.githubusercontent.com/RobertSellers/R_Shiny_Recommender/master/R-Obj-CSVs/user_tenrecs.csv", 
+                  header=TRUE, sep = ",", stringsAsFactors = FALSE)
+
+###############################################
+# now randomly select a user and display their 10 UBCF recommended artists
+
+# randomly select a user
+user <- sample(user_tenrecs$userID, 1)
+
+# fetch their recommendations
+urecs <- sort(as.vector(subset(user_tenrecs, userID == user)[2:11]) )
+
+# create list of artist names from artist ID's in list
+rec_names <- subset(lfm_art, id %in% urecs)$name
+
+kable(rec_names, col.names = "Artists You Might Enjoy")
+
+```
+
+_____
+
+# Load + Use Artist-Genre Matrix 
+
+Given a specific genre, generate list of top 5 artists from that genre
+
+```{r}
+# load artist-genre matrix
+ag_mat <- as.matrix(read.csv("https://raw.githubusercontent.com/RobertSellers/R_Shiny_Recommender/master/R-Obj-CSVs/ag_mat.csv", check.names = FALSE,
+                  header=TRUE, sep = ",", stringsAsFactors = FALSE) )
+
+# set rownames to values in V1
+row.names(ag_mat) <- as.numeric(ag_mat[,1])
+
+# now truncate matrix to eliminate col 1
+ag_mat <- ag_mat[,2:ncol(ag_mat)]
+
+
+##############################################
+# now simulate finding top 5 artists for a genre
+
+# this is only here for random number generation: delete in production mode
+set.seed(42)
+
+# extract the genre tagIDs from matrix and convert to numeric
+tagIDs <- as.numeric(colnames(ag_mat))
+
+# set number of artists to recommend
+n_recommended <- 5
+
+# randomly select a genre
+tagID <- sample(tagIDs, 1)
+
+# get name of genre from tagID list
+g_name <- lfm_tags[lfm_tags$tagID == tagID,]$tagValue
+
+# fetch the top N artists:
+# the names of the items are the artist IDs
+g_arecs <- sort(ag_mat[,as.character(tagID)], decreasing = TRUE)[1:n_recommended]
+
+# extract the artist IDs and convert to numeric
+g_arecs_IDs <- as.numeric(names(g_arecs))
+
+# create list of artist names from artist ID's in list
+g_arec_names <- lfm_art[lfm_art$id %in% g_arecs_IDs,]$name
+
+# create a heading for the list of similar artists
+table_head <- sprintf("Top Artists in %s genre:", g_name)
+
+# display the list of similar artists
+kable(g_arec_names, col.names = table_head)
+
+```
+
+_____
+
+# Load + Use Artist Similarity Matrix:
+
+Given a specific artist, generate list of top 5 similar artists
+
+```{r}
+# load artist similarity matrix
+art_sim <- as.matrix(read.csv("https://raw.githubusercontent.com/RobertSellers/R_Shiny_Recommender/master/R-Obj-CSVs/art_sim.csv", check.names = FALSE,
+                  header=TRUE, sep = ",", stringsAsFactors = FALSE) )
+
+# set rownames to values in V1
+row.names(art_sim) <- as.numeric(art_sim[,1])
+
+# now truncate matrix to eliminate col 1
+art_sim <- art_sim[,2:ncol(art_sim)]
+
+
+####################################
+# now simulate finding top 5 artists similar to a specific artist
+
+# set number of similar artists to recommend
+n_recommended <- 5
+
+# randomly select a user
+artist <- as.numeric(sample(rownames(art_sim), 1) )
+
+# get name of artist from artist list
+a_name <- lfm_art[lfm_art$id == artist,]$name
+
+# fetch their recommendations: this returns a named vector sorted by similarity
+# the names of the items are the artist IDs
+arecs <- sort(art_sim[as.character(artist),], decreasing = TRUE)[1:n_recommended]
+
+# extract the artist IDs and convert to numeric
+arecs_IDs <- as.numeric(names(arecs))
+
+# create list of artist names from artist ID's in list
+arec_names <- lfm_art[lfm_art$id %in% arecs_IDs,]$name
+
+# create a heading for the list of similar artists
+table_head <- sprintf("Artists Similar to %s", a_name)
+
+# display the list of similar artists
+kable(arec_names, col.names = table_head)
+
+```
+
+
+_____
+
+# Load + Use User-Artist Dataframe
+
+Use this object to produce a list of artists a user has listened to
+
+```{r}
+# load user-artist data frame: to be used for displaying list of artists
+# a user has listened to.
+last_sm <- read.csv("https://raw.githubusercontent.com/RobertSellers/R_Shiny_Recommender/master/R-Obj-CSVs/last_sm.csv", 
+                  header=TRUE, sep = ",", stringsAsFactors = FALSE)
+
+################################################
+# display list of artists previously listened to for a given user
+
+# randomly select a user
+user <- sample(last_sm$userID, 1)
+
+# get distinct artist ID's they've listened to 
+user_arts <- last_sm$artistID[last_sm$userID == user]
+
+# create list of artist names from artist ID's in list
+ul_names <- lfm_art[lfm_art$id %in% user_arts,]$name
+
+# create a heading for the list of artists
+table_head <- "Artists You Have Listened To"
+
+# display the list of artists
+kable(ul_names, col.names = table_head)
+```

@@ -462,9 +462,9 @@ for (i in 1:length(b_pred@items)){
   # get the length of new_rec vector
   num_newrecs <- length(new_recs)
   
-  # if too few recommendations generated, sample 10 at random from the top374
+  # if too few recommendations generated, sample 10 at random from the top815
   if(num_newrecs < 10) {
-    new_recs <- sample(top_374$artistID[!(top_374$artistID %in% user_arts)], 10)
+    new_recs <- sample(top_815$artistID[!(top_815$artistID %in% user_arts)], 10)
     
   }
   
@@ -624,26 +624,36 @@ Various data objects that we've built herein will serve as content for the afore
 
 ```{r, eval = FALSE}
 # save an R object to a file for future use
-save(user_tenrecs, file = "c:/data/643/user_tenrecs.RData")
+write.csv(user_tenrecs, "c:/data/643/user_tenrecs.csv", row.names=FALSE)
 
 # delete the file from memory
 rm(user_tenrecs)
 
 # reload delete object into memory
-load(file = "c:/data/643/user_tenrecs.RData")
+user_tenrecs <- read.csv("https://raw.githubusercontent.com/RobertSellers/R_Shiny_Recommender/master/R-Obj-CSVs/user_tenrecs.csv", 
+                  header=TRUE, sep = ",", stringsAsFactors = FALSE)
 ```
 
 ### Save artist-genre Matrix to a File
 
 ```{r, eval = FALSE}
 # save an R object to a file for future use
-save(ag_mat, file = "c:/data/643/ag_mat.RData")
+write.csv(ag_mat, row.names = TRUE,
+               file = "c:/data/643/ag_mat.csv")
 
 # delete the file from memory
 rm(ag_mat)
 
 # reload delete object into memory
-load(file = "c:/data/643/ag_mat.RData")
+ag_mat <- as.matrix(read.csv("https://raw.githubusercontent.com/RobertSellers/R_Shiny_Recommender/master/R-Obj-CSVs/ag_mat.csv", check.names = FALSE,
+                  header=TRUE, sep = ",", stringsAsFactors = FALSE) )
+
+# set rownames to values in V1
+row.names(ag_mat) <- as.numeric(ag_mat[,1])
+
+# now truncate matrix to eliminate col 1
+ag_mat <- ag_mat[,2:ncol(ag_mat)]
+
 ```
 
 
@@ -651,13 +661,21 @@ load(file = "c:/data/643/ag_mat.RData")
 
 ```{r, eval = FALSE}
 # save an R object to a file for future use
-save(art_sim, file = "c:/data/643/art_sim.RData")
+write.csv(art_sim, row.names = TRUE,
+               file = "c:/data/643/art_sim.csv")
 
 # delete the file from memory
 rm(art_sim)
 
-# reload delete object into memory
-load(file = "c:/data/643/art_sim.RData")
+art_sim <- as.matrix(read.csv("https://raw.githubusercontent.com/RobertSellers/R_Shiny_Recommender/master/R-Obj-CSVs/art_sim.csv", check.names = FALSE,
+                  header=TRUE, sep = ",", stringsAsFactors = FALSE) )
+
+# set rownames to values in V1
+row.names(art_sim) <- as.numeric(art_sim[,1])
+
+# now truncate matrix to eliminate col 1
+art_sim <- art_sim[,2:ncol(art_sim)]
+
 ```
 
 
@@ -667,13 +685,14 @@ The user-artists matrix comprised of the top 815 artists will allow the user to 
 
 ```{r, eval = FALSE}
 # save an R object to a file for future use
-save(last_sm, file = "c:/data/643/last_sm.RData")
+write.csv(last_sm, "c:/data/643/last_sm.csv", row.names=FALSE)
 
 # delete the file from memory
 rm(last_sm)
 
 # reload delete object into memory
-load(file = "c:/data/643/last_sm.RData")
+last_sm <- read.csv("https://raw.githubusercontent.com/RobertSellers/R_Shiny_Recommender/master/R-Obj-CSVs/last_sm.csv", 
+                  header=TRUE, sep = ",", stringsAsFactors = FALSE)
 ```
 
 _____

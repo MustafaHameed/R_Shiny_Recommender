@@ -53,6 +53,14 @@ artistIDs <- as.numeric(rownames(art_sim) )
 
 # then get associated genre names from lfm_art data frame
 a_names <- lfm_art[lfm_art$id %in% artistIDs,]$name
+
+# remove artist names that start with '?' characters since they cause problems
+# when trying to later retrieve the associated artist ID
+
+a_names <- a_names[a_names != '????']
+a_names <- a_names[a_names != '?????']
+a_names <- a_names[a_names != '??????']
+
 #------------------------------------------------
 
 
@@ -63,6 +71,7 @@ tagIDs <- as.numeric(colnames(ag_mat))
 
 # then get associated genre names from lfm_tags data frame
 g_names <- lfm_tags[lfm_tags$tagID %in% tagIDs,]$tagValue
+
 # --------------------------------------------------
 
 ##### Get a list of distinct userID's
@@ -81,18 +90,17 @@ ui <- shinyUI(fluidPage(
     sidebarPanel(
 
       selectInput("d_userID", u_hdr,
-                  choices = userIDs ),
+#                  choices = userIDs ),
+                   choices = c(Enter_User_ID='', userIDs )),
       
       radioButtons("Rec_Choices", label=h4("Select A Recommendation Method:"),
                    choices = list("Review Artists Listened to Previously" = "last_sm", 
                                   "By Similar Artists (Top 5)" = "art_sim", 
                                   "By Genre (Top 5)" = "ag_mat", 
-                                  "By Similar Users (10 Total)" = "tenrecs"),
+                                  "10 Recommended Artists From Similar Users" = "tenrecs"),
                    selected = "last_sm"),
       
       uiOutput("selectedItem")
-      
-#      submitButton("Update Choice")
       
     ), # end sidebarPanel
     
@@ -113,16 +121,6 @@ ui <- shinyUI(fluidPage(
 
 server <- shinyServer(function(input, output) {
   
-############################################
-# Function to capture radio button selection
-  
-  datasetInput <- reactive({
-    switch(input$Rec_Choices,
-           "ag_mat" = ag_mat,
-           "art_sim" = art_sim,
-           "last_sm" = last_sm,
-           "tenrecs" = tenrecs)
-  })
 
 #############################################
 # Function to create dynamic drop down containing appropriate list to choose from
@@ -131,11 +129,11 @@ server <- shinyServer(function(input, output) {
     
     if (input$Rec_Choices == "ag_mat") {
       selectInput("d_genre", "Select Genre:",
-                  choices = g_names )
+                  choices = sort(g_names) )
       
     } else if (input$Rec_Choices == "art_sim") {
       selectInput("d_artsim", "Select Artist:",
-                  choices = a_names )
+                  choices = sort(a_names) )
       
     } else if (input$Rec_Choices == "last_sm") {
       # get list of previously listened artists for userID
@@ -144,8 +142,8 @@ server <- shinyServer(function(input, output) {
       # create list of artist names from artist ID's in list
       ul_names <- lfm_art[lfm_art$id %in% user_arts,]$name
       
-      selectInput("d_lastsm", "Select Artist:",
-                  choices = ul_names )
+      selectInput("d_lastsm", "Artists You Have Listened To:",
+                  choices = sort(ul_names) )
       
     } # end if
   })
@@ -227,7 +225,7 @@ server <- shinyServer(function(input, output) {
       
       n_recommended <- 5
       
-      # get name of artist from artist list
+      # get ID of artist from artist list
       a_val <- lfm_art[lfm_art$name == input$d_lastsm,]$id
       
       # fetch their recommendations: this returns a named vector sorted by similarity

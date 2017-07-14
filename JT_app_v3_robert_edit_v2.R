@@ -110,7 +110,6 @@ ui <- shinyUI(fluidPage(
     sidebarPanel(
 
       selectInput("d_userID", u_hdr,
-#                  choices = userIDs ),
                    choices = c(Enter_User_ID='', userIDs )),
       
       radioButtons("Rec_Choices", label=strong("Select A Recommendation Method:"),
@@ -118,8 +117,9 @@ ui <- shinyUI(fluidPage(
                                   "By Genre (Top 5)" = "ag_mat", 
                                   "10 Artists Recommended by Similar Users" = "tenrecs"),
                    selected = "tenrecs"),
-      strong("User Listening Profile"),
-      DT::dataTableOutput("profileTable")
+      strong("User Top Artists"),
+      DT::dataTableOutput("profileTable"),
+      strong("Select an Artist to run Artist Similarity")
       
     ), # end sidebarPanel
 
@@ -246,11 +246,15 @@ server <- shinyServer(function(input, output) {
   }) # end renderTable
 
   output$tableSelection <-renderTable({
-    return (input$profileTable_rows_selected)
+    return (filteredTable_selected())
   })
   
-  output$profileTable <- DT::renderDataTable({
-    
+  filteredTable_selected <- reactive({
+    id <- input$profileTable_rows_selected
+    filteredTable_data()[id,]
+  })
+  
+  filteredTable_data <- reactive({
     # get list of previously listened artists for userID
     user_arts <- last_sm$artistID[last_sm$userID == input$d_userID]
     
@@ -261,12 +265,22 @@ server <- shinyServer(function(input, output) {
     ul_names <- ul_names[ul_names != '????']
     ul_names <- ul_names[ul_names != '?????']
     ul_names <- ul_names[ul_names != '??????']
-employee <- c('John Doe','Peter Gynn','Jolie Hope')
-salary <- c(21000, 23400, 26800)
-startdate <- as.Date(c('2010-11-1','2008-3-25','2007-3-14'))
-employ.data <- data.frame(employee, salary, startdate)
-ret <- data.table(ul_names)
-    return (ret)
+    ret <- data.table(ul_names)
+  })
+  
+  output$profileTable <- DT::renderDataTable({
+        user_arts <- last_sm$artistID[last_sm$userID == input$d_userID]
+    
+    # create list of artist names from artist ID's in list
+    ul_names <- lfm_art[lfm_art$id %in% user_arts,]$name
+    
+    # remove any artists that start with ? character
+    ul_names <- ul_names[ul_names != '????']
+    ul_names <- ul_names[ul_names != '?????']
+    ul_names <- ul_names[ul_names != '??????']
+    ret <- data.table(ul_names)
+    ret <- data.table(ul_names)
+    datatable(filteredTable_data(), rownames = FALSE, colnames=NULL, selection="single",options = list(dom = 't'))
   })
   
   callback = "function(table) {

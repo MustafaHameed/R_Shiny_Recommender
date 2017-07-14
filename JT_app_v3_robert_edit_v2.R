@@ -83,8 +83,15 @@ u_hdr <- paste("Select a User ID (", min(userIDs), " - ", max(userIDs), " )" )
 # ____ui____
 
 ui <- shinyUI(fluidPage(
-
+  useShinyjs(),
   ###################  CSS   ###################  
+  tags$style(type="text/css", "#table th {
+    display: none;}"), 
+  tags$style(type="text/css", "#profileTable th {
+    display: none;"), 
+  tags$style(type="text/css", "#profileTable {
+    max-height: 200px; 
+    overflow-y: auto;}"),
   HTML('<footer>2017 - James Topor, Logan Thompson, Robert Sellers</footer>'),
   tags$style(type="text/css", "footer{
     position:absolute;
@@ -95,13 +102,6 @@ ui <- shinyUI(fluidPage(
     padding: 10px;
     background-color: black;
     z-index: 1000;}"),
-  tags$style(type="text/css", "#table th {
-    display: none;}"), 
-  tags$style(type="text/css", "#profileTable th {
-    display: none;"), 
-  tags$style(type="text/css", "#profileTable {
-    max-height: 200px; 
-    overflow-y: auto;}"),
   ###############################################
 
   titlePanel(h1(style = "font-family: Arial Black", "last.fm Artist Recommender")),  
@@ -118,8 +118,8 @@ ui <- shinyUI(fluidPage(
                                   "10 Artists Recommended by Similar Users" = "tenrecs"),
                    selected = "tenrecs"),
       strong("User Top Artists"),
-      DT::dataTableOutput("profileTable"),
-      strong("Select to run Similarity")
+      strong("Select to run Similarity:"),
+      DT::dataTableOutput("profileTable")
       
     ), # end sidebarPanel
 
@@ -129,7 +129,7 @@ ui <- shinyUI(fluidPage(
         uiOutput("selectedItem"),
         br(),
         tableOutput("table"),
-        tableOutput("tableSelection")
+        tableOutput("table2")
       ) # end mainPanel
 
     )) # end sidebarLayout
@@ -145,7 +145,7 @@ server <- shinyServer(function(input, output) {
 # Function to create dynamic drop down containing appropriate list to choose from
   
   output$selectedItem <- renderUI({
-    
+
     if (input$Rec_Choices == "ag_mat") {
       selectInput("d_genre", "Select Genre:",
                   choices = sort(g_names) )
@@ -180,7 +180,7 @@ server <- shinyServer(function(input, output) {
 # the method selected by the user
   
   output$table <- renderTable({
-    
+
     if (input$Rec_Choices == "ag_mat") {
       # Top 5 Artists in Selected Genre
       
@@ -242,26 +242,28 @@ server <- shinyServer(function(input, output) {
       
     } # end if
     
-    
   }) # end renderTable
 
-  output$tableSelection <-renderTable({
-    if(!is.null(filteredTable_selected())){
-      n_recommended <- 5
-      a_val <- lfm_art[lfm_art$name == filteredTable_selected()[[1]][1],]$id
-      a_val <- as.numeric(sort(a_val))
-      arecs <- sort(art_sim[as.character(a_val),], decreasing = TRUE)[1:n_recommended]
-      arecs_IDs <- as.numeric(names(arecs))
-      arec_names <- lfm_art[lfm_art$id %in% arecs_IDs,]$name
-       return (arec_names)
-    }
+  #Outputs the user datatable selected query
+  output$table2 <- renderTable({
+        # use this if user clicks artist in "top artists" table
+      if(length(filteredTable_selected()) > 0){
+        n_recommended <- 5
+        a_val <- lfm_art[lfm_art$name == filteredTable_selected()[[1]][1],]$id
+        a_val <- as.numeric(sort(a_val))
+        arecs <- sort(art_sim[as.character(a_val),], decreasing = TRUE)[1:n_recommended]
+        arecs_IDs <- as.numeric(names(arecs))
+        arec_names <- lfm_art[lfm_art$id %in% arecs_IDs,]$name
+        return (arec_names)
+
+      }
   })
-  
+
   filteredTable_selected <- reactive({
     id <- input$profileTable_rows_selected
     filteredTable_data()[id,]
   })
-  
+
   filteredTable_data <- reactive({
     # get list of previously listened artists for userID
     user_arts <- last_sm$artistID[last_sm$userID == input$d_userID]
@@ -289,10 +291,6 @@ server <- shinyServer(function(input, output) {
     });
     }"
   
-  
 }) # end server
   
-  
-
-
 shinyApp(ui, server)

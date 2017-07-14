@@ -118,7 +118,6 @@ ui <- shinyUI(fluidPage(
                                   "10 Artists Recommended by Similar Users" = "tenrecs"),
                    selected = "tenrecs"),
       strong("User Top Artists"),
-      strong("Select to run Similarity:"),
       DT::dataTableOutput("profileTable")
       
     ), # end sidebarPanel

@@ -147,7 +147,7 @@ server <- shinyServer(function(input, output) {
       ul_names <- ul_names[ul_names != '?????']
       ul_names <- ul_names[ul_names != '??????']
       
-      selectInput("d_lastsm", "Artists You Have Listened To:",
+      selectInput("d_lastsm", "Select an Artist You Have Previously Listened To:",
                   choices = sort(ul_names) )
       
     } # end if

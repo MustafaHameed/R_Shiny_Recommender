@@ -274,7 +274,7 @@ server <- shinyServer(function(input, output) {
     ul_names <- ul_names[ul_names != '????']
     ul_names <- ul_names[ul_names != '?????']
     ul_names <- ul_names[ul_names != '??????']
-    ret <- data.table(ul_names)
+    ret <- data.table(sort(ul_names))
   })
   
   output$profileTable <- DT::renderDataTable({

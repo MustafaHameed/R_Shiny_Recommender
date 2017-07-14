@@ -97,8 +97,8 @@ ui <- shinyUI(fluidPage(
                    choices = list("Review Artists Listened to Previously" = "last_sm", 
                                   "By Similar Artists (Top 5)" = "art_sim", 
                                   "By Genre (Top 5)" = "ag_mat", 
-                                  "10 Recommended Artists From Similar Users" = "tenrecs"),
-                   selected = "last_sm"),
+                                  "10 Artists Recommended by Similar Users" = "tenrecs"),
+                   selected = "tenrecs"),
       
       uiOutput("selectedItem")
       

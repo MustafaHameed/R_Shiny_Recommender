@@ -251,6 +251,11 @@ server <- shinyServer(function(input, output) {
       # create list of artist names from artist ID's in list
       rec_names <- subset(lfm_art, id %in% urecs)$name
       
+      # remove any artists that start with ? character
+      rec_names <- rec_names[rec_names != '????']
+      rec_names <- rec_names[rec_names != '?????']
+      rec_names <- rec_names[rec_names != '??????']
+      
       return(rec_names)
       
     } # end if

@@ -142,6 +142,11 @@ server <- shinyServer(function(input, output) {
       # create list of artist names from artist ID's in list
       ul_names <- lfm_art[lfm_art$id %in% user_arts,]$name
       
+      # remove any artists that start with ? character
+      ul_names <- ul_names[ul_names != '????']
+      ul_names <- ul_names[ul_names != '?????']
+      ul_names <- ul_names[ul_names != '??????']
+      
       selectInput("d_lastsm", "Artists You Have Listened To:",
                   choices = sort(ul_names) )
       
@@ -250,11 +255,6 @@ server <- shinyServer(function(input, output) {
       
       # create list of artist names from artist ID's in list
       rec_names <- subset(lfm_art, id %in% urecs)$name
-      
-      # remove any artists that start with ? character
-      rec_names <- rec_names[rec_names != '????']
-      rec_names <- rec_names[rec_names != '?????']
-      rec_names <- rec_names[rec_names != '??????']
       
       return(rec_names)
       

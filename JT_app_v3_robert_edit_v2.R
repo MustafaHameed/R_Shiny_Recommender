@@ -83,7 +83,7 @@ u_hdr <- paste("Select a User ID (", min(userIDs), " - ", max(userIDs), " )" )
 # ____ui____
 
 ui <- shinyUI(fluidPage(
-  useShinyjs(),
+
   ###################  CSS   ###################  
   tags$style(type="text/css", "#table th {
     display: none;}"), 

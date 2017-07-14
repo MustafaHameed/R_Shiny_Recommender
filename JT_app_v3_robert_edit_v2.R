@@ -278,7 +278,7 @@ server <- shinyServer(function(input, output) {
   })
   
   output$profileTable <- DT::renderDataTable({
-    datatable(filteredTable_data(), rownames = FALSE, colnames=NULL, selection="single", options = list(pageLength = 500,dom = 't'))
+    datatable(filteredTable_data(), rownames = FALSE, colnames=NULL, selection="single", options = list(pageLength = -1,dom = 't'))
   })
   
   callback = "function(table) {

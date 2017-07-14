@@ -119,7 +119,7 @@ ui <- shinyUI(fluidPage(
                    selected = "tenrecs"),
       strong("User Top Artists"),
       DT::dataTableOutput("profileTable"),
-      strong("Select an Artist to run Artist Similarity")
+      strong("Select to run Similarity")
       
     ), # end sidebarPanel
 
@@ -246,7 +246,15 @@ server <- shinyServer(function(input, output) {
   }) # end renderTable
 
   output$tableSelection <-renderTable({
-    return (filteredTable_selected())
+    if(!is.null(filteredTable_selected())){
+      n_recommended <- 5
+      a_val <- lfm_art[lfm_art$name == filteredTable_selected()[[1]][1],]$id
+      a_val <- as.numeric(sort(a_val))
+      arecs <- sort(art_sim[as.character(a_val),], decreasing = TRUE)[1:n_recommended]
+      arecs_IDs <- as.numeric(names(arecs))
+      arec_names <- lfm_art[lfm_art$id %in% arecs_IDs,]$name
+       return (arec_names)
+    }
   })
   
   filteredTable_selected <- reactive({
@@ -269,18 +277,7 @@ server <- shinyServer(function(input, output) {
   })
   
   output$profileTable <- DT::renderDataTable({
-        user_arts <- last_sm$artistID[last_sm$userID == input$d_userID]
-    
-    # create list of artist names from artist ID's in list
-    ul_names <- lfm_art[lfm_art$id %in% user_arts,]$name
-    
-    # remove any artists that start with ? character
-    ul_names <- ul_names[ul_names != '????']
-    ul_names <- ul_names[ul_names != '?????']
-    ul_names <- ul_names[ul_names != '??????']
-    ret <- data.table(ul_names)
-    ret <- data.table(ul_names)
-    datatable(filteredTable_data(), rownames = FALSE, colnames=NULL, selection="single",options = list(dom = 't'))
+    datatable(filteredTable_data(), rownames = FALSE, colnames=NULL, selection="single", options = list(dom = 't'))
   })
   
   callback = "function(table) {

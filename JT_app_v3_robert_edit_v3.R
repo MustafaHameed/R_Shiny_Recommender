@@ -106,7 +106,9 @@ ui <- shinyUI(fluidPage(
     z-index: 1000;}"),
   ###############################################
 
-  titlePanel(h1(style = "font-family: Arial Black", "last.fm Artist Recommender")),  
+  titlePanel(h1(style = "font-family: Arial Black", "Last.fm Artist Recommender")),  
+  
+  hr(),
   
   sidebarLayout(
     sidebarPanel(

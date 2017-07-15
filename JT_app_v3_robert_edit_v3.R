@@ -92,18 +92,30 @@ ui <- shinyUI(fluidPage(
   tags$style(type="text/css", "#profileTable th {
     display: none;"), 
   tags$style(type="text/css", "#profileTable {
-    max-height: 200px; 
+    max-height: 240px; 
     overflow-y: auto;}"),
   HTML('<footer>2017 - James Topor, Logan Thompson, Robert Sellers</footer>'),
   tags$style(type="text/css", "footer{
     position:absolute;
     bottom:0;
     width:100%;
-    height:50px; /* Height of the footer */
+    height:40px; /* Height of the footer */
     color: white;
     padding: 10px;
     background-color: black;
     z-index: 1000;}"),
+  tags$style(type="text/css", "#table tbody td {
+    padding: 10px;}"),
+  tags$style(type="text/css", "#table2 tbody td {
+    padding: 10px;}"),
+  tags$style(type="text/css", "#table {
+    border-collapse: collapse;
+    border-spacing: 10;
+    font: normal 15px Arial Black, sans-serif;}"),
+  tags$style(type="text/css", "#table2 {
+    border-collapse: collapse;
+    border-spacing: 10;
+    font: normal 15px Arial Black, sans-serif;}"),
   ###############################################
 
   titlePanel(h1(style = "font-family: Arial Black", "Last.fm Artist Recommender")),  
@@ -269,6 +281,8 @@ server <- shinyServer(function(input, output) {
       arecs_IDs <- as.numeric(names(arecs))
       arec_names <- lfm_art[lfm_art$id %in% arecs_IDs,]$name
       return (arec_names)
+    }else{
+      return("Nothing Selected")
     }
   })
 
@@ -276,6 +290,7 @@ server <- shinyServer(function(input, output) {
   values <- reactiveValues()
   values$show <- 'panel1'
 
+  #Grabs the artist value from the data table
   filteredTable_selected <- reactive({
     id <- input$profileTable_rows_selected
     filteredTable_data()[id,]

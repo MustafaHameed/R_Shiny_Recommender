@@ -87,6 +87,8 @@ ui <- shinyUI(fluidPage(
   ###################  CSS   ###################  
   tags$style(type="text/css", "#table th {
     display: none;}"), 
+  tags$style(type="text/css", "#table2 th {
+    display: none;}"), 
   tags$style(type="text/css", "#profileTable th {
     display: none;"), 
   tags$style(type="text/css", "#profileTable {
@@ -249,6 +251,7 @@ server <- shinyServer(function(input, output) {
 
   #Outputs the user datatable selected query
   output$table2 <- renderTable({
+    # if(!(number%in%seq(length(filteredTable_selected()[[1]][1])))){}
         # use this if user clicks artist in "top artists" table
         n_recommended <- 5
         a_val <- lfm_art[lfm_art$name == filteredTable_selected()[[1]][1],]$id
@@ -257,7 +260,7 @@ server <- shinyServer(function(input, output) {
         arecs_IDs <- as.numeric(names(arecs))
         arec_names <- lfm_art[lfm_art$id %in% arecs_IDs,]$name
         return (arec_names)
-
+      # }
   })
 
   filteredTable_selected <- reactive({

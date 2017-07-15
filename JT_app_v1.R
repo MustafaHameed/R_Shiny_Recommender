@@ -91,7 +91,8 @@ ui <- shinyUI(fluidPage(
 
       selectInput("d_userID", u_hdr,
 #                  choices = userIDs ),
-                   choices = c(Enter_User_ID='', userIDs )),
+#                   choices = c(Enter_User_ID='', userIDs )),
+                   choices = c("Enter User ID", userIDs )),
       
       radioButtons("Rec_Choices", label=h4("Select A Recommendation Method:"),
                    choices = list("Review Artists Listened to Previously" = "last_sm", 
@@ -129,11 +130,11 @@ server <- shinyServer(function(input, output) {
     
     if (input$Rec_Choices == "ag_mat") {
       selectInput("d_genre", "Select Genre:",
-                  choices = sort(g_names) )
+                  choices = c("Select a Genre", sort(g_names) ) )
       
     } else if (input$Rec_Choices == "art_sim") {
       selectInput("d_artsim", "Select Artist:",
-                  choices = sort(a_names) )
+                  choices = c("Select an Artist", sort(a_names) ) )
       
     } else if (input$Rec_Choices == "last_sm") {
       # get list of previously listened artists for userID
@@ -148,7 +149,7 @@ server <- shinyServer(function(input, output) {
       ul_names <- ul_names[ul_names != '??????']
       
       selectInput("d_lastsm", "Select an Artist You Have Previously Listened To:",
-                  choices = sort(ul_names) )
+                  choices = c("Select an Artist", sort(ul_names) ) )
       
     } # end if
   })
@@ -261,7 +262,9 @@ server <- shinyServer(function(input, output) {
     } # end if
     
     
-  }) # end renderTable
+  },
+  
+  colnames = FALSE) # end renderTable
 
   
 }) # end server

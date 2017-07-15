@@ -297,7 +297,7 @@ server <- shinyServer(function(input, output) {
 
   # if the table is clicked, perform this UI upheaval
   observeEvent(input$profileTable_rows_selected, {
-    values$show <- 'panel2'
+    values$show <- 'panel2' # toggle observable between 1 and 2
     removeUI(selector = '#table')
     removeUI(selector = '#table2')
     insertUI(selector = '#placeholder',ui = tableOutput('table2'))
@@ -305,7 +305,7 @@ server <- shinyServer(function(input, output) {
 
   # if the radio buttons are clicked, perform this UI upheaval
   observeEvent(input$Rec_Choices, {
-    values$show <- 'panel1'
+    values$show <- 'panel1' # toggle observable between 1 and 2
     removeUI(selector = '#table2')
     removeUI(selector = '#table')
     insertUI(selector = '#placeholder',ui = tableOutput('table'))

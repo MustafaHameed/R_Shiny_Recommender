@@ -149,11 +149,11 @@ server <- shinyServer(function(input, output) {
     if(values$show=='panel1'){
       if (input$Rec_Choices == "ag_mat") {
         selectInput("d_genre", "Select Genre:",
-                    choices = sort(g_names) )
+                    choices = c("Select a Genre", sort(g_names) ) )
         
       } else if (input$Rec_Choices == "art_sim") {
         selectInput("d_artsim", "Select Artist:",
-                    choices = sort(a_names) )
+                    choices = c("Select an Artist", sort(a_names) ) )
         
       }
     } 

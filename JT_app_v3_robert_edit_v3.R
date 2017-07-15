@@ -111,11 +111,11 @@ ui <- shinyUI(fluidPage(
   tags$style(type="text/css", "#table {
     border-collapse: collapse;
     border-spacing: 10;
-    font: normal 15px Arial Black, sans-serif;}"),
+    font: normal 14px Arial Black, sans-serif;}"),
   tags$style(type="text/css", "#table2 {
     border-collapse: collapse;
     border-spacing: 10;
-    font: normal 15px Arial Black, sans-serif;}"),
+    font: normal 14px Arial Black, sans-serif;}"),
   ###############################################
 
   titlePanel(h1(style = "font-family: Arial Black", "Last.fm Artist Recommender")),  

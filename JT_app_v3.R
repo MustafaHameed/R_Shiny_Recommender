@@ -91,7 +91,7 @@ ui <- shinyUI(fluidPage(
       selectInput("d_userID", u_hdr,
                    choices = c("Enter User ID", userIDs )),
       
-      radioButtons("Rec_Choices", label=h4("Select A Recommendation Method:"),
+      radioButtons("Rec_Choices", label=h4("Select a Recommendation Method:"),
                    choices = list("Review Artists Listened to Previously" = "last_sm", 
                                   "By Similar Artists (Top 5)" = "art_sim", 
                                   "By Genre (Top 5)" = "ag_mat", 

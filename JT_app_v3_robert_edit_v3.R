@@ -253,25 +253,26 @@ server <- shinyServer(function(input, output) {
     datatable(
       filteredTable_data(), 
       rownames = FALSE, 
-      colnames=NULL, 
-      selection="single", 
+      colnames = NULL, 
+      selection = "single", 
       options = list(pageLength = -1,dom = 't'))
   })
 
   #Outputs the user datatable selected query
   output$table2 <- renderTable({
     if(length(input$profileTable_rows_selected>0)){
-    # use this if user clicks artist in "top artists" table
-        n_recommended <- 5
-        a_val <- lfm_art[lfm_art$name == filteredTable_selected()[[1]][1],]$id
-        a_val <- as.numeric(sort(a_val))
-        arecs <- sort(art_sim[as.character(a_val),], decreasing = TRUE)[1:n_recommended]
-        arecs_IDs <- as.numeric(names(arecs))
-        arec_names <- lfm_art[lfm_art$id %in% arecs_IDs,]$name
-        return (arec_names)
+      # rerun the artists top n results
+      n_recommended <- 5
+      a_val <- lfm_art[lfm_art$name == filteredTable_selected()[[1]][1],]$id
+      a_val <- as.numeric(sort(a_val))
+      arecs <- sort(art_sim[as.character(a_val),], decreasing = TRUE)[1:n_recommended]
+      arecs_IDs <- as.numeric(names(arecs))
+      arec_names <- lfm_art[lfm_art$id %in% arecs_IDs,]$name
+      return (arec_names)
     }
   })
 
+  #Keep track of which query system is being applied
   values <- reactiveValues()
   values$show <- 'panel1'
 
@@ -294,32 +295,20 @@ server <- shinyServer(function(input, output) {
     ret <- data.table(sort(ul_names))
   })
 
+  # if the table is clicked, perform this UI upheaval
   observeEvent(input$profileTable_rows_selected, {
     values$show <- 'panel2'
-    removeUI(
-      selector = '#table'
-    )
-    removeUI(
-      selector = '#table2'
-    )
-    insertUI(
-      selector = '#placeholder',
-      ui = tableOutput('table2')
-    )
+    removeUI(selector = '#table')
+    removeUI(selector = '#table2')
+    insertUI(selector = '#placeholder',ui = tableOutput('table2'))
   })
 
+  # if the radio buttons are clicked, perform this UI upheaval
   observeEvent(input$Rec_Choices, {
     values$show <- 'panel1'
-    removeUI(
-      selector = '#table2'
-    )
-    removeUI(
-      selector = '#table'
-    )
-    insertUI(
-      selector = '#placeholder',
-      ui = tableOutput('table')
-    )
+    removeUI(selector = '#table2')
+    removeUI(selector = '#table')
+    insertUI(selector = '#placeholder',ui = tableOutput('table'))
   })
 
 }) # end server

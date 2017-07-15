@@ -130,7 +130,7 @@ ui <- shinyUI(fluidPage(
         uiOutput("selectedItem"),
         br(),
         tableOutput("table"),
-        tags$div(id = 'placeholder') 
+        tags$div(id = 'placeholder')
       ) # end mainPanel
 
     )) # end sidebarLayout
@@ -141,14 +141,6 @@ ui <- shinyUI(fluidPage(
 # ____server____
 
 server <- shinyServer(function(input, output) {
-
-#  f <- function(x) is.numeric(x) & !is.na(x)
-
-#   myReactives = reactiveValues()
-#   myReactives$currentA <- FALSE
-#   observe(  myReactives$currentA <-  input$Rec_Choices)
-#   observe( myReactives$currentA <- input$profileTable_rows_selected) 
-
 
 #############################################
 # Function to create dynamic drop down containing appropriate list to choose from
@@ -249,10 +241,20 @@ server <- shinyServer(function(input, output) {
 
   }) # end renderTable
 
+  #render the profile table
+  output$profileTable <- DT::renderDataTable({
+    datatable(
+      filteredTable_data(), 
+      rownames = FALSE, 
+      colnames=NULL, 
+      selection="single", 
+      options = list(pageLength = -1,dom = 't'))
+  })
+
   #Outputs the user datatable selected query
   output$table2 <- renderTable({
-    # if(!(number%in%seq(length(filteredTable_selected()[[1]][1])))){}
-        # use this if user clicks artist in "top artists" table
+    if(length(input$profileTable_rows_selected>0)){
+    # use this if user clicks artist in "top artists" table
         n_recommended <- 5
         a_val <- lfm_art[lfm_art$name == filteredTable_selected()[[1]][1],]$id
         a_val <- as.numeric(sort(a_val))
@@ -260,7 +262,7 @@ server <- shinyServer(function(input, output) {
         arecs_IDs <- as.numeric(names(arecs))
         arec_names <- lfm_art[lfm_art$id %in% arecs_IDs,]$name
         return (arec_names)
-      # }
+    }
   })
 
   filteredTable_selected <- reactive({
@@ -279,46 +281,35 @@ server <- shinyServer(function(input, output) {
     ul_names <- ul_names[ul_names != '????']
     ul_names <- ul_names[ul_names != '?????']
     ul_names <- ul_names[ul_names != '??????']
-    ret <- data.table(ul_names)
+    ret <- data.table(sort(ul_names))
   })
-  
-    observeEvent(input$profileTable_rows_selected, {
-      removeUI(
-        selector = '#table'
-      )
-      removeUI(
-        selector = '#table2'
-      )
-      insertUI(
-        selector = '#placeholder',
-        ui = tableOutput('table2')
-      )
-    })
 
-    observeEvent(input$Rec_Choices, {
-      removeUI(
-        selector = '#table2'
-      )
-      removeUI(
-        selector = '#table'
-      )
-      insertUI(
-        selector = '#placeholder',
-        ui = tableOutput('table')
-      )
-    })
+  observeEvent(input$profileTable_rows_selected, {
+    removeUI(
+      selector = '#table'
+    )
+    removeUI(
+      selector = '#table2'
+    )
+    insertUI(
+      selector = '#placeholder',
+      ui = tableOutput('table2')
+    )
+  })
 
-    output$profileTable <- DT::renderDataTable({
-      datatable(
-        filteredTable_data(), 
-        rownames = FALSE, 
-        colnames=NULL, 
-        selection="single", 
-        options = list(pageLength = -1,dom = 't'))
-    })
-  
+  observeEvent(input$Rec_Choices, {
+    removeUI(
+      selector = '#table2'
+    )
+    removeUI(
+      selector = '#table'
+    )
+    insertUI(
+      selector = '#placeholder',
+      ui = tableOutput('table')
+    )
+  })
 
-  
 }) # end server
   
 shinyApp(ui, server)

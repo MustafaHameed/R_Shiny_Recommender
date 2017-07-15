@@ -719,7 +719,7 @@ A live version of the interactive __Shiny__ application can be accessed at the f
 
 The R source code for the __Shiny__ application is available at the following __Github__ link:
 
-- https://github.com/RobertSellers/R_Shiny_Recommender/blob/master/JT_app_v3_robert_edit_v3.R
+- https://github.com/RobertSellers/R_Shiny_Recommender/blob/master/Final-Code/app.R
 
 When activated, the __Shiny__ app first requires the input/selection of a valid user ID from the autofilled dropdown list shown at the top lefthand side of the screen as shown below:
 

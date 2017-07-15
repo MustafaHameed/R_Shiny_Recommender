@@ -84,7 +84,9 @@ u_hdr <- paste("Select a User ID (", min(userIDs), " - ", max(userIDs), " )" )
 
 ui <- shinyUI(fluidPage(
 
-  titlePanel(h1(style = "font-family: Arial Black", "last.fm Artist Recommender")),  
+  titlePanel(h1(style = "font-family: Arial Black", "Last.fm Artist Recommender")),  
+  
+  hr(),
   
   fluidRow(
     column(4,

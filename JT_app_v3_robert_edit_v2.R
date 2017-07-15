@@ -117,7 +117,7 @@ ui <- shinyUI(fluidPage(
                                   "By Genre (Top 5)" = "ag_mat", 
                                   "10 Artists Recommended by Similar Users" = "tenrecs"),
                    selected = "tenrecs"),
-      strong("User Top Artists. Select to run recommender."),
+      strong("Select an Artist You Have Previously Listened To:"),
       DT::dataTableOutput("profileTable")
       
     ), # end sidebarPanel
@@ -128,7 +128,7 @@ ui <- shinyUI(fluidPage(
         uiOutput("selectedItem"),
         br(),
         tableOutput("table"),
-        tableOutput("table2")
+        tags$div(id = 'placeholder') 
       ) # end mainPanel
 
     )) # end sidebarLayout
@@ -140,11 +140,18 @@ ui <- shinyUI(fluidPage(
 
 server <- shinyServer(function(input, output) {
 
+#  f <- function(x) is.numeric(x) & !is.na(x)
+
+#   myReactives = reactiveValues()
+#   myReactives$currentA <- FALSE
+#   observe(  myReactives$currentA <-  input$Rec_Choices)
+#   observe( myReactives$currentA <- input$profileTable_rows_selected) 
+
+
 #############################################
 # Function to create dynamic drop down containing appropriate list to choose from
   
   output$selectedItem <- renderUI({
-
     if (input$Rec_Choices == "ag_mat") {
       selectInput("d_genre", "Select Genre:",
                   choices = sort(g_names) )
@@ -160,18 +167,17 @@ server <- shinyServer(function(input, output) {
 # Function to generate heading for main panel
   
   output$text<- renderText({
-    
-    if (input$Rec_Choices == "ag_mat") {
-      paste("Top 5 Artists in Selected Genre")
-      
-    } else if (input$Rec_Choices == "art_sim") {
-      paste("Top 5 Artists Similar to Selected Artist", input$selectedItem)
-      
-    } else if (input$Rec_Choices == "tenrecs") {
-      paste("10 Artists You May Like")
-      
-    } # end if
-    
+      if (input$Rec_Choices == "ag_mat") {
+        paste("Top 5 Artists in Selected Genre")
+        
+      } else if (input$Rec_Choices == "art_sim") {
+        paste("Top 5 Artists Similar to Selected Artist", input$selectedItem)
+        
+      } else if (input$Rec_Choices == "tenrecs") {
+        paste("10 Artists You May Like")
+        
+      } # end if
+
   })
 
 ##############################################    
@@ -179,7 +185,6 @@ server <- shinyServer(function(input, output) {
 # the method selected by the user
   
   output$table <- renderTable({
-
     if (input$Rec_Choices == "ag_mat") {
       # Top 5 Artists in Selected Genre
       
@@ -212,7 +217,6 @@ server <- shinyServer(function(input, output) {
       a_val <- lfm_art[lfm_art$name == input$d_artsim,]$id
 
       a_val <- as.numeric(sort(a_val))
-
       
       # fetch their recommendations: this returns a named vector sorted by similarity
       # the names of the items are the artist IDs
@@ -240,13 +244,12 @@ server <- shinyServer(function(input, output) {
       return(rec_names)
       
     } # end if
-    
+
   }) # end renderTable
 
   #Outputs the user datatable selected query
   output$table2 <- renderTable({
         # use this if user clicks artist in "top artists" table
-      if(length(filteredTable_selected()) > 0){
         n_recommended <- 5
         a_val <- lfm_art[lfm_art$name == filteredTable_selected()[[1]][1],]$id
         a_val <- as.numeric(sort(a_val))
@@ -255,7 +258,6 @@ server <- shinyServer(function(input, output) {
         arec_names <- lfm_art[lfm_art$id %in% arecs_IDs,]$name
         return (arec_names)
 
-      }
   })
 
   filteredTable_selected <- reactive({
@@ -274,21 +276,45 @@ server <- shinyServer(function(input, output) {
     ul_names <- ul_names[ul_names != '????']
     ul_names <- ul_names[ul_names != '?????']
     ul_names <- ul_names[ul_names != '??????']
-    ret <- data.table(sort(ul_names))
+    ret <- data.table(ul_names)
   })
   
-  output$profileTable <- DT::renderDataTable({
-    datatable(filteredTable_data(), rownames = FALSE, colnames=NULL, selection="single", options = list(pageLength = -1,dom = 't'))
-  })
+    observeEvent(input$profileTable_rows_selected, {
+      removeUI(
+        selector = '#table'
+      )
+      removeUI(
+        selector = '#table2'
+      )
+      insertUI(
+        selector = '#placeholder',
+        ui = tableOutput('table2')
+      )
+    })
+
+    observeEvent(input$Rec_Choices, {
+      removeUI(
+        selector = '#table2'
+      )
+      removeUI(
+        selector = '#table'
+      )
+      insertUI(
+        selector = '#placeholder',
+        ui = tableOutput('table')
+      )
+    })
+
+    output$profileTable <- DT::renderDataTable({
+      datatable(
+        filteredTable_data(), 
+        rownames = FALSE, 
+        colnames=NULL, 
+        selection="single", 
+        options = list(pageLength = -1,dom = 't'))
+    })
   
-  callback = "function(table) {
-    table.on('click.dt', 'tr', function() {
-    table.$('tr.selected').removeClass('selected');
-    $(this).toggleClass('selected');            
-    Shiny.onInputChange('rows',
-    table.rows('.selected').data()[0][0]);
-    });
-    }"
+
   
 }) # end server
   

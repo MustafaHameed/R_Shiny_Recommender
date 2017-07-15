@@ -84,14 +84,16 @@ u_hdr <- paste("Select a User ID (", min(userIDs), " - ", max(userIDs), " )" )
 
 ui <- shinyUI(fluidPage(
 
-  titlePanel(h1(style = "font-family: Arial Black", "last.fm Artist Recommender")),  
+  titlePanel(h1(style = "font-family: Arial Black", "Last.fm Artist Recommender")),  
+  
+  hr(),
   
   fluidRow(
     column(4,
       selectInput("d_userID", u_hdr,
                    choices = c("Enter User ID", userIDs )),
       
-      radioButtons("Rec_Choices", label=h4("Select A Recommendation Method:"),
+      radioButtons("Rec_Choices", label=h4("Select a Recommendation Method:"),
                    choices = list("Review Artists Listened to Previously" = "last_sm", 
                                   "By Similar Artists (Top 5)" = "art_sim", 
                                   "By Genre (Top 5)" = "ag_mat", 

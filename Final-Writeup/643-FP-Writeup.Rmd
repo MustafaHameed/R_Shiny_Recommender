@@ -360,7 +360,7 @@ _____
 
 # Binarizing the Matrices
 
-The previous project referenced earlier demonstrated that a binary version of the user-artist matrix yielded more accurate recommendations than did a user-matrix comprised of the raw listen counts. As such, we will make use of a binary version of the user-artist matrix here as the basis of our user-based collaborative filter. The user-artist matrix can be binarized as follows:
+The previous project referenced earlier demonstrated that a binary version of the user-artist matrix yielded more accurate recommendations than did a user-matrix comprised of the raw listen counts. Specifically, a binary version outperformed the non-binary version as measured by the area under the respective ROC curves as well as by precision-recall measures. As such, we will make use of a binary version of the user-artist matrix here as the basis of our user-based collaborative filter. The user-artist matrix can be binarized as follows:
 
 ```{r, eval = TRUE}
 # create binarized copy of data
@@ -421,7 +421,7 @@ The performance metrics for the model are shown above. As we can see, the precis
 b_pred@items[1:4]
 ```
 
-With the UBCF in place, we can now generate a "Top 10" list of recommended artists for each user within our data set. However, instead of limiting our "Top N" list to 10 possible artists per user, we'll extend the list out to a maximum of 20 items per user in an attempt to capture possible "long tail" artists for each user, and subsequently reduce the list of 20 down to 10 via an approach used in the previous project referenced earlier. Furthermore, we ensure that none of the recommended musical artists are identical to any which the user has already listened to via the __last.fm__ platform.
+With the UBCF in place, we can now generate a "Top 10" list of recommended artists for each user within our data set. However, instead of limiting our "Top N" list to 10 possible artists per user, we'll extend the list out to a maximum of 20 items per user in an attempt to capture possible "long tail" artists for each user, and subsequently reduce the list of 20 down to 10 via an approach similar to the the partially stochastic method used in the previous project referenced earlier. Furthermore, we ensure that none of the recommended musical artists are identical to any which the user has already listened to via the __last.fm__ platform.
 
 We start by generating a list of 20 recommended artists for each user:
 
@@ -435,7 +435,19 @@ b_pred <- predict(b1, ua_bmat, n = n_recommended, goodRating = 1)
 b_pred@items[20:23]
 ```
 
-We then create a data frame to store the 10 recommendations we will eventually share with each user, and then fill the data frame via a partially stochastic algorithm that extracts a subset of 10 artists from the list of 20 generated above.
+We then create a data frame to store the 10 recommendations we will eventually share with each user, and then fill the data frame via a partially stochastic algorithm that extracts a subset of 10 artists from the list of 20 generated above. That algorithm works as follows:
+
+1. Remove any artists from the list of 20 which the user has previously listened to;
+
+2. For the remaining "new" artists, randomly select seven of the top 10 for inclusion in a final list of artist recommendations;
+
+3. Then, randomly select an additional 3 artists from the remaining "long tail" of the recommendations for inclusion in a final list of artist recommendations;
+
+4. Merge the two sublists from steps 1 and 2 above to create a list of 10 recommended "Artists You May Enjoy" for the user;
+
+5. Scramble the order of the list of 10 created in step 3 so that they will be presented to the user in no particular order.
+
+This approach is implemented below. 
 
 ```{r}
 # create a data frame to house 10 recommendations for each artist
@@ -721,6 +733,8 @@ The R source code for the __Shiny__ application is available at the following __
 
 - https://github.com/RobertSellers/R_Shiny_Recommender/blob/master/Final-Code/app.R
 
+The __Shiny__ application includes the use of the __DT__ package, which itself is a wrapper for the __Javascript__ library provided within the __DataTables__ package, as well as the use of __Cascading Style Sheets__ (CSS). Components of the __DT__ library were used to create an interactive data table while CSS was used to facilitate the activation and deactivation of various user interface objects. The combination of the two proved to be a novel experience for the authors and served as an example of how the two technologies can be used together to create an interactive application.
+
 When activated, the __Shiny__ app first requires the input/selection of a valid user ID from the autofilled dropdown list shown at the top lefthand side of the screen as shown below:
 
 ![](s_userID.png)
@@ -773,7 +787,7 @@ If the user wishes to discover musical artists similar to one they have previous
 
 <br>
 
-Here, the user has selected the artist __Infected Mushrooms__ from the scrollable __Select an Artist You Have Previously Listened To__ list, with the top 5 similar artists being displayed on the righthand side of the screen. Once again the "Top 5" list has been derived from the artist similarity matrix described earlier.
+Here, the user has selected the artist __Infected Mushroom__ from the scrollable __Select an Artist You Have Previously Listened To__ list, with the top 5 similar artists being displayed on the righthand side of the screen. Once again the "Top 5" list has been derived from the artist similarity matrix described earlier.
 
 _____
 

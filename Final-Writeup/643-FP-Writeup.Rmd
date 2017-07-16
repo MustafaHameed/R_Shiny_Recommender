@@ -97,6 +97,12 @@ a_users <- arrange(summarise(group_by(lastfm, artistID),
 top_1000 <- a_users[1:1000,]
 ```
 
+A portion of the resulting data frame is shown below: The values shown within the __TotalUsers__ column represent the total number of __last.fm__ users that have listened to the artist represented by the adjacent unique __last.fm__ artist ID.
+
+![](art_listeners.png)
+
+<br>
+
 We then further truncate the data by removing any artists that don't have a corresponding entry within the artists.dat file. Analysis indicates that a total of 182 of the top 1000 artists do not have a corresponding entry within the artists.dat file. 
 
 ```{r}
@@ -169,6 +175,12 @@ length(unique(user_tags$userID))
 length(unique(user_tags$artistID))
 ```
 
+A portion of the resulting data frame is displayed below. As we can see, each user can apply multiple genre tags to any given artist.
+
+![](user_tags.png)
+
+<br>
+
 We then calculate and summarize the number of tags applied per user. Summary statistics show a median of 20 tags applied per user with a mean of 98.56.
 
 ```{r}
@@ -193,7 +205,16 @@ tag_counts <- arrange(summarise(group_by(user_tags, tagID),
 summary(tag_counts$TotalUsers)
 ```
 
-The summary statistics shown above indicate that the vast majority of the 11,946 genre labels haven't been used very much, with a median frequency of 1 and a mean frequency of 3.674. A histogram and boxplot of the results provide further confirmation of the infrequency with which most genre labels have been used:
+The summary statistics shown above indicate that the vast majority of the 11,946 genre labels haven't been used very much, with a median frequency of 1 and a mean frequency of 3.674. 
+
+A sample of the tag_counts data frame generated above is shown below: The __TotalUsers__ field contains the total number of users that have deployed the genre tag represented by the adjacent unique __last.fm__ genre __tagID__.
+
+![](tag_counts.png)
+
+<br>
+
+
+A histogram and boxplot of the results provide further confirmation of the infrequency with which most genre labels have been used:
 
 ```{r}
 par(mfrow=c(1,2))
@@ -305,6 +326,14 @@ user_ids <- as.vector(l_mat$userID)
 lr_mat <- as.matrix(l_mat[,2:ncol(l_mat)])
 ```
 
+A portion of the user-artist matrix is shown below. The row names within the matrix represent the unique __last.fm__ user ID's we extracted from the __user_artists.dat__ file while the column names represent the unique __last.fm__ artist ID's we extracted from the __artists.dat__ file.
+
+![](user_arts.png)
+
+<br>
+
+The values within each cell represent the number of times a given user has listened to a given artist via the __last.fm__ platform. For example, user ID 130 has listened to artist 9 a total of 488 times.
+
 As shown below, the resulting matrix contains a total of __1,524,050__ possible listen counts. We also calculate the density and sparsity of the matrix:
 
 ```{r}
@@ -341,6 +370,14 @@ ag_mat <- as.matrix(tmp_mat[,2:ncol(tmp_mat)])
 
 rm(tmp_mat)
 ```
+
+A portion of the artist-genre matrix is shown below. The row names within the matrix represent the unique __last.fm__ artist ID's we extracted from the __artists.dat__ file while the column names represent the unique __last.fm__ genre tag ID's we extracted from the __tags.dat__ file.
+
+![](art_genre.png)
+
+<br>
+
+The values within each cell represent the number of times a given artist has been "tagged" with a given genre tag. For example, artist ID 53 has been tagged 31 times with the genre tag represented by tag ID 18.
 
 As shown below, the resulting matrix has a total of 163,000 artist-genre pairings, with a density of __9.1%__ and a corresponding sparsity of __90.9%__.
 
@@ -548,6 +585,14 @@ art_sim[][] <- round(art_sim[][],3)
 colnames(art_sim) <- ag_artistID
 rownames(art_sim) <- ag_artistID
 ```
+
+A portion of the artist similarity matrix is shown below. The row and column names within the matrix represent the unique __last.fm__ artist ID's we extracted from the __artists.dat__ file earlier. 
+
+![](art_sim.png)
+
+<br>
+
+The values within each cell represent the results of the aforementioned cosine similarity calculations. For example, artist ID's 51 and 30 have been found to have a cosine similarity of 0.374. Also note that all values along the diagonal of the matrix are set to zero to eliminate the 100% cosine similarity results that occur when comparing any given artist against itself.
 
 _____
 

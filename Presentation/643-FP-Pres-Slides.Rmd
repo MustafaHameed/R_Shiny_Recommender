@@ -1,0 +1,150 @@
+---
+title: 'A Multi-faceted Approach to Music Recommendations'
+author: "Authors: Robert Sellers, Logan Thompson, James Topor"
+date: "July 17, 2017"
+output:
+  ioslides_presentation:
+    smaller: yes
+    widescreen: yes
+  beamer_presentation: default
+  slidy_presentation: default
+---
+
+```{r, message=FALSE, warning=FALSE, echo = FALSE}
+# Load Packages
+library(knitr)
+```
+
+## Problem Formulation & Objectives
+
+- Implement a multi-faceted approach to musical artist recommendations through the use of a user-based collaborative filtering algorithm, similarity / utility matrices, content-based filtering, and an interactive application interface.
+
+- Primary goal was to gain experience in implementing a variety of recommendation algorithms using a large (1M+ item) data set and to gain insight into how many commercial recommender systems enable "user discovery" of different content.
+
+- The project was implemented using __R__ / __RStudio__, __Shiny__, __Github__, and the __last.fm__ publicly available dataset of system user, musical artist, and user-supplied music genre labeling information.
+
+### *The algorithms we've designed enable us to make recommendations of musical artists on the basis of __similar users__ (collaborative filtering), __similar artists__ (content-based filtering), or by __musical genre__ (content-based filtering).*
+
+
+## The Last.fm Data Set
+
+![](lastfm-logo.png)
+
+<br>
+
+- Comprised of music listening information for a set of __1,892 users__ of the __Last.fm__ online music system
+
+- Lists the artists to which each user has listened and also provides a "listen count" for each [user, artist] pair. 
+
+- A total of __17,632 distinct musical artists__ are represented within the data set
+
+- Nearly __12,000 possible user-defined musical genre "tags"__ are available
+
+- Downloaded from: https://grouplens.org/datasets/hetrec-2011/
+
+
+## The Last.fm Data Set (cont'd)
+
+![](lastfm-logo.png)
+
+<br>
+
+Of the several component files, the following were used:
+
+1. __artists.dat__: Unique ID + name of each musical artist
+
+2. __tags.dat__: Unique ID + name of each user-defined musical genre
+
+3. __user_artists.dat__: Lists the artists (by artist ID) to which each user has listened and also provides a "listen count" for each [user, artist] pair. A listen count = number of times a user has listened to a given artist.
+
+4. __user_taggedartists.dat__: Contains an entry for each instance in which a last.fm user has assigned a musical genre label (a.k.a., a "tag") to an artist. Organized by user ID, artist ID, genre tag ID.
+
+
+## Data Set Challenges
+
+- Artist names are sometimes entirely comprised of foreign language characters (e.g., Japanese, Chinese, Russian, etc..).
+
+- Some artist ID's present within the __user-artists.dat__ file have no corresponding entry within the __artists.dat__ file: No way to know what the actual names of those artists might be.
+
+- Sparsity: Of the 17,632 distinct artists and nearly 12,000 possible genre tags, the vast majority have very limited utility: The median number of listeners across all artists is 77, while the median frequency with which a genre tag has actually be applied to an artist is 1.
+
+__Number of Listeners Per Artist:__
+
+![](num-listeners.png)
+
+<br>
+
+__Frequency of Genre Tag Use:__
+
+![](genre-freq.png)
+
+
+## Addressing the Data Set Challenges
+
+- Limit the artists we use to the top 1000 as defined by the count of __last.fm__ users that have listened to each artist;
+
+- From the top 1000 remove any artist ID's that do not have a corresponding entry in the __artist.dat__ file;
+
+- Limit the genre tags we use to the top 200 as defined by the number of times each genre tag has been applied to artists within the data set;
+
+- Remove any artists from the top 1000 that have not been tagged with one of the top 200 genre tags;
+
+- Remove any users that have not listened to any of the the remaining list of musical artists;
+
+- This process leaves us with __815 artists__ * __1870 users__ = 
+
+### *A user-artist matrix comprised of __1,524,050__ elements (a.k.a., "listen counts").*
+
+
+## The User-Artist Matrix
+
+- Used as the basis of a __user-based collaborative filter (UBCF)__.
+
+- The row names within the matrix represent the unique last.fm user ID's we extracted from the user_artists.dat file while the column names represent the unique last.fm artist ID's we extracted from the artists.dat file. Each cell indicates how frequently a given user has listened to a particular artist.
+
+![](user_arts.png)
+
+
+## The Artist-Genre Matrix
+
+- Used as the basis of __content-based filtering by genre__ as well as for the __creation of an artist similarity matrix__.
+
+- The row names within the matrix represent the unique last.fm artist ID's we extracted from the artists.dat file while the column names represent the unique last.fm genre tag ID's we extracted from the tags.dat file. Each cell indicates how frequently an artist has been tagged as belonging to a particular genre. 
+
+![](art_genre.png)
+
+
+## The Artist Similarity Matrix
+
+- Used as the basis of __content-based filtering via artist similarity__
+
+- Treat a binarized version of the artist-genre matrix as a series of row vectors: we can think of each row of the matrix as "characterizing" an artist via the genre tags that have been applied to it.
+
+- Calculate the "similarity" of any two artists via a cosine distance function: The larger the value of the result, the more similar a pair of artists should be.
+
+- The similarity matrix has one row and one column for each artist, with each cell within the matrix containing the result of the corresponding cosine similarity calculation. The row and column names within the matrix represent the unique last.fm artist ID's we extracted from the artists.dat file.
+
+![](art_sim.png)
+
+## Tying it All Together
+
+- __Recommendations based on Similiar Users__: Binarize the user-artist matrix and generate a UBCF "Top 20" artist recommender. Take the top 20 recommendations and apply a semi-stochastic process to produce a list of 10 recommended artists that a user has not previously listened to via the __last.fm__ platform.
+
+- __Genre-based recommendations__: Provide a list of the "Top 5"" artists from a selected genre based on the content of the artist-genre matrix, i.e., how frequently an artist has been tagged as belonging to a particular genre. 
+
+- __Recommendations based on Similar Artists__: Provide a list of the "Top 5" artists deemed to be most similar to a specified artist based on the cosine similarity values contained within the artist similarity matrix.
+
+
+### *Our __Shiny__ app ties all of these capabilities together within a single easy-to-use interactive recommender system interface.*
+
+
+## The Shiny App
+
+- Hosted at: https://robertwsellers.shinyapps.io/R_Shiny_Recommender/
+
+- Source code at: https://github.com/RobertSellers/R_Shiny_Recommender/blob/master/Final-Code/app.R
+
+<br>
+
+### And Now ..... ***__A Live Demo !!__***
+
